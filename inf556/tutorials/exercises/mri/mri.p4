@@ -112,6 +112,7 @@ parser MyParser(packet_in packet,
         /*
         * TODO: Add logic to:
         * - Extract the ipv4_option header.
+	* - Select on the value of hdr.ipv4_option.option
         *   - If value is equal to IPV4_OPTION_MRI, transition to parse_mri.
         *   - Otherwise, accept.
         */
@@ -203,7 +204,8 @@ control MyEgress(inout headers hdr,
         * TODO: add logic to:
         - Increment hdr.mri.count by 1
         - Add a new swtrace header by calling push_front(1) on hdr.swtraces.
-        - Set hdr.swtraces[0].swid to the id parameter
+        - Set hdr.swtraces[0] as valid calling setValid()
+        - Set hdr.swtraces[0].swid to the switchID parameter
         - Set hdr.swtraces[0].qdepth to (qdepth_t)standard_metadata.deq_qdepth
         - Increment hdr.ipv4.ihl by 2
         - Increment hdr.ipv4.totalLen by 8
@@ -221,12 +223,9 @@ control MyEgress(inout headers hdr,
     }
     
     apply {
-        /*
-        * TODO: add logic to:
-        * - If hdr.mri is valid:
-        *   - Apply table swtrace
-        */
-	swtrace.apply();
+	if (hdr.mri.isValid()) {
+            swtrace.apply();
+        }
     }
 }
 
